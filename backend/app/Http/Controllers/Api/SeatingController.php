@@ -12,6 +12,7 @@ use App\Models\Seating;
 use App\Models\Table;
 use App\Services\SeatingService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Cache;
 
 class SeatingController extends Controller
 {
@@ -65,11 +66,14 @@ class SeatingController extends Controller
 
     private function statusSnapshot(): array
     {
-        $tables = Table::with('currentSeating.party')->orderBy('code')->get();
+        return Cache::remember(SeatingService::STATUS_CACHE_KEY, SeatingService::STATUS_CACHE_TTL, function () {
+            $tables = Table::with('currentSeating.party')->orderBy('code')->get();
 
-        return [
-            'tables' => TableStatusResource::collection($tables),
-            'queue' => PartyQueueResource::collection($this->seatingService->priorityQueue()),
-        ];
+            return [
+                'tables' => TableStatusResource::collection($tables)->resolve(),
+                'queue' => PartyQueueResource::collection($this->seatingService->priorityQueue())->resolve(),
+            ];
+        });
     }
+
 }

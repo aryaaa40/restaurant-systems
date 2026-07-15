@@ -6,9 +6,13 @@ use App\Models\Party;
 use App\Models\Seating;
 use App\Models\Table;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Cache;
 
 class SeatingService
 {
+    
+    public const STATUS_CACHE_KEY = 'restaurant:status';
+    public const STATUS_CACHE_TTL = 10;
 
     public function findBestTable(int $partySize): ?Table
     {
@@ -33,6 +37,8 @@ class SeatingService
         ]);
 
         $party->update(['status' => 'seated']);
+
+        Cache::forget(self::STATUS_CACHE_KEY);
 
         return $seating;
     }
@@ -77,10 +83,12 @@ class SeatingService
         $seating->update(['completed_at' => now()]);
         $seating->party->update(['status' => 'completed']);
 
+        Cache::forget(self::STATUS_CACHE_KEY);
+
         $this->tryFillFromQueue();
     }
 
-    
+
     public function tryFillFromQueue(): void
     {
         foreach ($this->priorityQueue() as $party) {
