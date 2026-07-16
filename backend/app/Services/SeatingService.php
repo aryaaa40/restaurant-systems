@@ -62,6 +62,8 @@ class SeatingService
             'arrived_at' => now(),
         ]);
 
+        Cache::forget(self::STATUS_CACHE_KEY);
+
         $table = $this->findBestTable($size);
 
         if ($table) {
