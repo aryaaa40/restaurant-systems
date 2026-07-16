@@ -25,33 +25,38 @@ export function getTableColor(table: TableStatus, now: number): TableColor {
 
 export const STATUS_STYLES: Record<
   TableColor,
-  { card: string; dot: string; badge: string; label: string }
+  { card: string; dot: string; badge: string; ring: string; label: string }
 > = {
   green: {
     card: 'border-l-emerald-500',
     dot: 'bg-emerald-500',
     badge: 'bg-emerald-50 text-emerald-700',
+    ring: 'ring-emerald-500',
     label: 'Kosong',
   },
   red: {
     card: 'border-l-rose-500',
     dot: 'bg-rose-500',
     badge: 'bg-rose-50 text-rose-700',
+    ring: 'ring-rose-500',
     label: 'Terisi',
   },
   yellow: {
     card: 'border-l-amber-500',
     dot: 'bg-amber-500',
     badge: 'bg-amber-50 text-amber-700',
+    ring: 'ring-amber-500',
     label: 'Segera Selesai',
   },
   blue: {
     card: 'border-l-blue-500',
     dot: 'bg-blue-500',
     badge: 'bg-blue-50 text-blue-700',
+    ring: 'ring-blue-500',
     label: 'Overdue',
   },
 }
+
 
 export function formatCountdown(estimatedEndAt: string, now: number): string {
   const endsAt = new Date(estimatedEndAt).getTime()
