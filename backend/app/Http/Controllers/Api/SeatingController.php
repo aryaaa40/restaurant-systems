@@ -3,16 +3,19 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\AssignRequest;
 use App\Http\Requests\ArriveRequest;
 use App\Http\Requests\ServeRequest;
 use App\Http\Resources\PartyQueueResource;
 use App\Http\Resources\SeatingHistoryResource;
 use App\Http\Resources\TableStatusResource;
+use App\Models\Party;
 use App\Models\Seating;
 use App\Models\Table;
 use App\Services\SeatingService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Cache;
+
 
 class SeatingController extends Controller
 {
@@ -47,6 +50,20 @@ class SeatingController extends Controller
         $table = Table::findOrFail($request->integer('table_id'));
 
         $this->seatingService->forceComplete($table);
+
+        return response()->json($this->statusSnapshot());
+    }
+
+    public function assign(AssignRequest $request): JsonResponse
+    {
+        $party = Party::findOrFail($request->integer('party_id'));
+        $table = Table::findOrFail($request->integer('table_id'));
+
+        try {
+            $this->seatingService->assignPartyToTable($party, $table);
+        } catch (\RuntimeException $e) {
+            return response()->json(['message' => $e->getMessage()], 422);
+        }
 
         return response()->json($this->statusSnapshot());
     }

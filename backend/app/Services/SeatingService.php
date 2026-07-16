@@ -43,6 +43,23 @@ class SeatingService
         return $seating;
     }
 
+    public function assignPartyToTable(Party $party, Table $table): void
+    {
+        if ($party->status !== 'waiting') {
+            throw new \RuntimeException('Party is not waiting.');
+        }
+
+        if ($table->currentSeating) {
+            throw new \RuntimeException('Table is not available.');
+        }
+
+        if ($party->size > $table->capacity) {
+            throw new \RuntimeException('Party size exceeds table capacity.');
+        }
+
+        $this->seatPartyAtTable($party, $table);
+    }
+
     public function priorityQueue()
     {
         return Party::query()
@@ -87,18 +104,5 @@ class SeatingService
 
         Cache::forget(self::STATUS_CACHE_KEY);
 
-        $this->tryFillFromQueue();
-    }
-
-
-    public function tryFillFromQueue(): void
-    {
-        foreach ($this->priorityQueue() as $party) {
-            $table = $this->findBestTable($party->size);
-
-            if ($table) {
-                $this->seatPartyAtTable($party, $table);
-            }
-        }
     }
 }
