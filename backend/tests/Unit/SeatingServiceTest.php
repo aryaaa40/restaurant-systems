@@ -82,22 +82,73 @@ it('force completes a table and frees it', function () {
         ->and($party->fresh()->status)->toBe('completed');
 });
 
-it('auto-reassigns the highest-priority waiting party when a table is freed', function () {
+it('does not auto-reassign a waiting party when a table is freed', function () {
     $this->service->arrivePartyOrQueue('A', 2);
     $this->service->arrivePartyOrQueue('B', 4);
     $this->service->arrivePartyOrQueue('C', 6);
     $this->service->arrivePartyOrQueue('D', 8);
 
-    $this->service->arrivePartyOrQueue('Small', 2);
-    $this->service->arrivePartyOrQueue('Big', 5);
+    $this->service->arrivePartyOrQueue('Waiting Guy', 2);
 
-    $tableC = Table::where('code', 'C')->first();
-    $this->service->forceComplete($tableC);
+    $tableA = Table::where('code', 'A')->first();
+    $this->service->forceComplete($tableA);
 
-    $big = Party::where('name', 'Big')->first();
-    $small = Party::where('name', 'Small')->first();
+    $waitingGuy = Party::where('name', 'Waiting Guy')->first();
 
-    expect($big->status)->toBe('seated')
-        ->and($big->seatings()->first()->table->code)->toBe('C')
-        ->and($small->status)->toBe('waiting');
+    expect($tableA->refresh()->currentSeating)->toBeNull()
+        ->and($waitingGuy->fresh()->status)->toBe('waiting');
 });
+
+it('manually assigns a waiting party to an available table', function () {
+    $this->service->arrivePartyOrQueue('A', 2);
+    $this->service->arrivePartyOrQueue('B', 4);
+    $this->service->arrivePartyOrQueue('C', 6);
+    $this->service->arrivePartyOrQueue('D', 8);
+
+    $this->service->arrivePartyOrQueue('Waiting Guy', 2);
+
+    $tableA = Table::where('code', 'A')->first();
+    $this->service->forceComplete($tableA);
+
+    $waitingGuy = Party::where('name', 'Waiting Guy')->first();
+    $this->service->assignPartyToTable($waitingGuy, $tableA->refresh());
+
+    expect($waitingGuy->fresh()->status)->toBe('seated')
+        ->and($tableA->refresh()->currentSeating->party->name)->toBe('Waiting Guy');
+});
+
+it('rejects manual assignment when the party is not waiting', function () {
+    $party = $this->service->arrivePartyOrQueue('Already Seated', 2);
+    $tableB = Table::where('code', 'B')->first();
+
+    expect(fn () => $this->service->assignPartyToTable($party, $tableB))
+        ->toThrow(\RuntimeException::class, 'Party is not waiting.');
+});
+
+it('rejects manual assignment when the table is already occupied', function () {
+    $this->service->arrivePartyOrQueue('A', 2);
+    $this->service->arrivePartyOrQueue('B', 4);
+    $this->service->arrivePartyOrQueue('C', 6);
+    $this->service->arrivePartyOrQueue('D', 8);
+
+    $waitingParty = $this->service->arrivePartyOrQueue('Waiting Guy', 2);
+    $tableA = Table::where('code', 'A')->first();
+
+    expect(fn () => $this->service->assignPartyToTable($waitingParty, $tableA))
+        ->toThrow(\RuntimeException::class, 'Table is not available.');
+});
+
+it('rejects manual assignment when the party is larger than the table capacity', function () {
+    $this->service->arrivePartyOrQueue('A', 2);
+    $this->service->arrivePartyOrQueue('B', 4);
+    $this->service->arrivePartyOrQueue('C', 6);
+    $this->service->arrivePartyOrQueue('D', 8);
+
+    $bigParty = $this->service->arrivePartyOrQueue('Big Guy', 6);
+    $tableA = Table::where('code', 'A')->first();
+    $this->service->forceComplete($tableA);
+
+    expect(fn () => $this->service->assignPartyToTable($bigParty->fresh(), $tableA->refresh()))
+        ->toThrow(\RuntimeException::class, 'Party size exceeds table capacity.');
+});
+
