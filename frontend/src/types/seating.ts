@@ -47,6 +47,12 @@ export interface ArriveResponse {
   }
 }
 
+export interface AssignPayload {
+  party_id: number
+  table_id: number
+}
+
+
 export interface ServePayload {
   table_id: number
 }

@@ -55,45 +55,46 @@ export function ArrivalForm() {
   }
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      noValidate
-      className="flex flex-wrap items-end gap-3 bg-white border border-slate-200 rounded-xl p-4 shadow-sm mb-6"
-    >
-      <div className="flex flex-col gap-1">
-        <label htmlFor="party-name" className="text-xs font-medium text-slate-500">
-          Nama Tamu
-        </label>
-        <input
-          id="party-name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          placeholder="Cth: Budi"
-          className="border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-slate-900"
-        />
-      </div>
+    <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-5">
+      <h2 className="text-lg font-bold text-slate-900 mb-1">Tamu Datang</h2>
+      <p className="text-xs text-slate-500 mb-4">Tambahkan rombongan baru ke sistem</p>
 
-      <div className="flex flex-col gap-1">
-        <label htmlFor="party-size" className="text-xs font-medium text-slate-500">
-          Jumlah Orang
-        </label>
-        <input
-          id="party-size"
-          type="number"
-          value={size}
-          onChange={(e) => setSize(e.target.value)}
-          placeholder="Cth: 3"
-          className="border border-slate-300 rounded-lg px-3 py-2 text-sm w-28 focus:outline-none focus:ring-2 focus:ring-slate-900"
-        />
-      </div>
+      <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-3">
+        <div className="flex flex-col gap-1">
+          <label htmlFor="party-name" className="text-xs font-medium text-slate-500">
+            Nama Tamu
+          </label>
+          <input
+            id="party-name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="Cth: Budi"
+            className="border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-slate-900"
+          />
+        </div>
 
-      <button
-        type="submit"
-        disabled={arriveMutation.isPending}
-        className="rounded-lg bg-slate-900 text-white text-sm font-medium px-4 py-2 hover:bg-slate-800 disabled:opacity-50"
-      >
-        {arriveMutation.isPending ? 'Mengirim…' : 'Tamu Datang'}
-      </button>
-    </form>
+        <div className="flex flex-col gap-1">
+          <label htmlFor="party-size" className="text-xs font-medium text-slate-500">
+            Jumlah Orang
+          </label>
+          <input
+            id="party-size"
+            type="number"
+            value={size}
+            onChange={(e) => setSize(e.target.value)}
+            placeholder="Cth: 3"
+            className="border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-slate-900"
+          />
+        </div>
+
+        <button
+          type="submit"
+          disabled={arriveMutation.isPending}
+          className="rounded-lg bg-slate-900 text-white text-sm font-medium px-4 py-2.5 hover:bg-slate-800 disabled:opacity-50"
+        >
+          {arriveMutation.isPending ? 'Mengirim…' : 'Tamu Datang'}
+        </button>
+      </form>
+    </div>
   )
 }

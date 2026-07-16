@@ -3,6 +3,7 @@ import { useDateNow } from '../hooks/useDateNow'
 import { useServe } from '../hooks/useServe'
 import { getTableColor, STATUS_STYLES, formatCountdown } from '../lib/tableStatus'
 import { Users } from 'lucide-react'
+import { useDroppable, useDndContext } from '@dnd-kit/core'
 
 interface TableCardProps {
   table: TableStatus
@@ -14,8 +15,26 @@ export function TableCard({ table }: TableCardProps) {
   const styles = STATUS_STYLES[color]
   const serveMutation = useServe()
 
+  const { setNodeRef, isOver } = useDroppable({
+    id: `table-${table.id}`,
+    data: { tableId: table.id, code: table.code, capacity: table.capacity, isOccupied: !!table.seating },
+  })
+  const { active } = useDndContext()
+
+  const draggedSize = active?.data.current?.size as number | undefined
+  const isDragging = Boolean(active)
+  const wouldFit = draggedSize !== undefined && !table.seating && draggedSize <= table.capacity
+
+  let dropRingClass = ''
+  if (isDragging && isOver) {
+    dropRingClass = wouldFit
+      ? 'ring-2 ring-emerald-400 ring-offset-2'
+      : 'ring-2 ring-rose-400 ring-offset-2'
+  }
+
   return (
     <div
+      ref={setNodeRef}
       data-testid={`table-${table.code}`}
       className={`bg-white rounded-2xl border border-slate-200 border-l-4 ${styles.card} shadow-sm hover:shadow-md transition-shadow duration-200 p-5 flex flex-col gap-3 min-h-[180px]`}
     >

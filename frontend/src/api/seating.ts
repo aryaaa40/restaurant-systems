@@ -5,10 +5,16 @@ import type {
   ServePayload,
   StatusResponse,
   HistoryResponse,
+  AssignPayload,
 } from '../types/seating'
 
 export async function arrive(payload: ArrivePayload): Promise<ArriveResponse> {
   const { data } = await apiClient.post<ArriveResponse>('/arrive', payload)
+  return data
+}
+
+export async function assignPartyToTable(payload: AssignPayload): Promise<StatusResponse> {
+  const { data } = await apiClient.post<StatusResponse>('/assign', payload)
   return data
 }
 
