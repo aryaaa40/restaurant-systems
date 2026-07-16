@@ -4,6 +4,8 @@ import { GripVertical } from 'lucide-react'
 import { useStatus } from '../hooks/useStatus'
 import { useDateNow } from '../hooks/useDateNow'
 import type { QueuedParty } from '../types/seating'
+import { matchesSearchFilter } from '../lib/searchFilter'
+
 
 function formatWaitingSince(arrivedAt: string, now: number): string {
   const arrivedMs = new Date(arrivedAt).getTime()
@@ -17,6 +19,11 @@ interface QueueItemProps {
   party: QueuedParty
   rank: number
   now: number
+}
+
+interface QueueListProps {
+  search: string
+  sizeFilter: number | null
 }
 
 function QueueItem({ party, rank, now }: QueueItemProps) {
@@ -56,11 +63,14 @@ function QueueItem({ party, rank, now }: QueueItemProps) {
   )
 }
 
-export function QueueList() {
+export function QueueList({ search, sizeFilter }: QueueListProps) {
   const { data } = useStatus()
   const now = useDateNow()
 
-  const queue = data?.queue ?? []
+  const fullQueue = data?.queue ?? []
+  const filteredQueue = fullQueue
+    .map((party, index) => ({ party, rank: index + 1 }))
+    .filter(({ party }) => matchesSearchFilter(party, search, sizeFilter))
 
   return (
     <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-5">
@@ -69,15 +79,16 @@ export function QueueList() {
         Urut prioritas: rombongan terbesar didahulukan · seret ke meja untuk assign manual
       </p>
 
-      {queue.length === 0 ? (
+      {filteredQueue.length === 0 ? (
         <p className="text-sm text-slate-400 italic">Tidak ada yang menunggu</p>
       ) : (
         <ul className="flex flex-col gap-2">
-          {queue.map((party, index) => (
-            <QueueItem key={party.id} party={party} rank={index + 1} now={now} />
+          {filteredQueue.map(({ party, rank }) => (
+            <QueueItem key={party.id} party={party} rank={rank} now={now} />
           ))}
         </ul>
       )}
     </div>
   )
 }
+

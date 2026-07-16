@@ -21,7 +21,7 @@ export function Status({ activeFilter, onFilterChange }: StatusProps) {
   )
 
   return (
-    <div className="flex flex-wrap gap-2 mb-6">
+    <div className="flex flex-wrap gap-2">
       {STATUS_ORDER.map((color) => {
         const styles = STATUS_STYLES[color]
         const isActive = activeFilter === color
@@ -31,7 +31,7 @@ export function Status({ activeFilter, onFilterChange }: StatusProps) {
             key={color}
             type="button"
             onClick={() => onFilterChange(isActive ? null : color)}
-            className={`inline-flex items-center gap-2 text-sm font-medium px-3 py-1.5 rounded-full transition ${styles.badge} ${
+            className={`inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full transition whitespace-nowrap ${styles.badge} ${
               isActive ? `ring-2 ring-offset-1 ${styles.ring}` : 'hover:brightness-95'
             }`}
           >

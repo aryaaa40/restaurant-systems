@@ -9,9 +9,13 @@ import { QueueList } from './components/QueueList'
 import { useAssign } from './hooks/useAssign'
 import type { TableColor } from './lib/tableStatus'
 import { HistoryTable } from './components/HistoryTable'
+import { SearchFilterBar } from './components/SearchFilterBar'
 
 function App() {
   const [statusFilter, setStatusFilter] = useState<TableColor | null>(null)
+  const [search, setSearch] = useState('')
+  const [sizeFilter, setSizeFilter] = useState<number | null>(null)
+
   const assignMutation = useAssign()
 
   const handleDragEnd = (event: DragEndEvent) => {
@@ -70,16 +74,29 @@ function App() {
             </p>
           </header>
 
-          <Status activeFilter={statusFilter} onFilterChange={setStatusFilter} />
-
           <div className="grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-6 items-start">
             <div className="flex flex-col gap-6">
-              <TableGrid statusFilter={statusFilter} />
+              <div className="bg-white border border-slate-200 rounded-xl shadow-sm p-4">
+                <h2 className="text-lg font-bold text-slate-900">Aktifitas Meja</h2>
+                <p className="text-xs text-slate-500 mb-4">
+                  Berikut adalah aktifitas meja yang sedang berlangsung.
+                </p>
+                <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
+                  <Status activeFilter={statusFilter} onFilterChange={setStatusFilter} />
+                  <SearchFilterBar
+                    search={search}
+                    onSearchChange={setSearch}
+                    sizeFilter={sizeFilter}
+                    onSizeFilterChange={setSizeFilter}
+                  />
+                </div>
+                <TableGrid statusFilter={statusFilter} search={search} sizeFilter={sizeFilter} />
+              </div>
               <HistoryTable />
             </div>
             <div className="flex flex-col gap-6">
               <ArrivalForm />
-              <QueueList />
+              <QueueList search={search} sizeFilter={sizeFilter} />
             </div>
           </div>
         </div>

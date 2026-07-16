@@ -1,12 +1,15 @@
 import { useStatus } from '../hooks/useStatus'
 import { TableCard } from './TableCard'
 import { getTableColor, type TableColor } from '../lib/tableStatus'
+import { matchesSearchFilter } from '../lib/searchFilter'
 
 interface TableGridProps {
   statusFilter: TableColor | null
+  search: string
+  sizeFilter: number | null
 }
 
-export function TableGrid({ statusFilter }: TableGridProps) {
+export function TableGrid({ statusFilter, search, sizeFilter }: TableGridProps) {
   const { data, isLoading, isError } = useStatus()
 
   if (isLoading) {
@@ -17,12 +20,14 @@ export function TableGrid({ statusFilter }: TableGridProps) {
     return <p className="text-rose-500 text-sm">Gagal memuat status meja.</p>
   }
 
-  const tables = statusFilter
+  let tables = statusFilter
     ? data.tables.filter((table) => getTableColor(table, Date.now()) === statusFilter)
     : data.tables
 
+  tables = tables.filter((table) => matchesSearchFilter(table.seating?.party, search, sizeFilter))
+
   if (tables.length === 0) {
-    return <p className="text-slate-400 text-sm">Tidak ada meja dengan status ini.</p>
+    return <p className="text-slate-400 text-sm">Tidak ada meja yang cocok.</p>
   }
 
   return (
