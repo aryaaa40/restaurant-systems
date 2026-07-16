@@ -1,21 +1,7 @@
 import { useMemo, useState, type MouseEvent } from 'react'
 import { ChevronUp, ChevronDown, ChevronsUpDown, X, Info } from 'lucide-react'
 import { useHistory } from '../hooks/useHistory'
-import type { HistoryEntry } from '../types/seating'
-
-type SortColumn =
-  | 'table_code'
-  | 'party_name'
-  | 'party_size'
-  | 'seated_at'
-  | 'completed_at'
-  | 'duration_minutes'
-type SortDirection = 'asc' | 'desc'
-
-interface SortCriterion {
-  column: SortColumn
-  direction: SortDirection
-}
+import { compareByCriteria, type SortColumn, type SortCriterion } from '../lib/historySort'
 
 const COLUMNS: { key: SortColumn; label: string }[] = [
   { key: 'table_code', label: 'Meja' },
@@ -34,30 +20,6 @@ function formatDateTime(value: string | null): string {
     hour: '2-digit',
     minute: '2-digit',
   })
-}
-
-function compareValues(a: HistoryEntry, b: HistoryEntry, column: SortColumn): number {
-  const aValue = a[column]
-  const bValue = b[column]
-
-  if (aValue === null) return 1
-  if (bValue === null) return -1
-
-  if (typeof aValue === 'number' && typeof bValue === 'number') {
-    return aValue - bValue
-  }
-
-  return String(aValue).localeCompare(String(bValue))
-}
-
-function compareByCriteria(a: HistoryEntry, b: HistoryEntry, criteria: SortCriterion[]): number {
-  for (const { column, direction } of criteria) {
-    const result = compareValues(a, b, column)
-    if (result !== 0) {
-      return direction === 'asc' ? result : -result
-    }
-  }
-  return 0
 }
 
 export function HistoryTable() {

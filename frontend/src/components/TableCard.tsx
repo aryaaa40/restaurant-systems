@@ -36,7 +36,7 @@ export function TableCard({ table }: TableCardProps) {
     <div
       ref={setNodeRef}
       data-testid={`table-${table.code}`}
-      className={`bg-white rounded-2xl border border-slate-200 border-l-4 ${styles.card} shadow-sm hover:shadow-md transition-shadow duration-200 p-5 flex flex-col gap-3 min-h-[180px]`}
+      className={`bg-white rounded-2xl border border-slate-200 border-l-4 ${styles.card} ${dropRingClass} shadow-sm hover:shadow-md transition-shadow duration-200 p-5 flex flex-col gap-3 min-h-[180px]`}
     >
       <div className="flex justify-between items-start">
         <h3 className="text-2xl font-bold text-slate-900">Meja {table.code}</h3>

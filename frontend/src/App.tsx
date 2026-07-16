@@ -10,6 +10,7 @@ import { useAssign } from './hooks/useAssign'
 import type { TableColor } from './lib/tableStatus'
 import { HistoryTable } from './components/HistoryTable'
 import { SearchFilterBar } from './components/SearchFilterBar'
+import { validateDrop } from './lib/dragValidation'
 
 function App() {
   const [statusFilter, setStatusFilter] = useState<TableColor | null>(null)
@@ -33,15 +34,13 @@ function App() {
 
     if (!partyId || !tableId) return
 
-    if (isOccupied) {
-      toast.error('Meja sedang terisi, tidak bisa ditempati.')
+    const validation = validateDrop(partySize, capacity, isOccupied)
+
+    if (!validation.valid) {
+      toast.error(validation.reason ?? 'Gagal menempatkan tamu.')
       return
     }
 
-    if (partySize !== undefined && capacity !== undefined && partySize > capacity) {
-      toast.error(`Rombongan ${partySize} orang tidak muat di meja berkapasitas ${capacity}.`)
-      return
-    }
 
     assignMutation.mutate(
       { party_id: partyId, table_id: tableId },
