@@ -8,6 +8,7 @@ import { ArrivalForm } from './components/ArrivalForm'
 import { QueueList } from './components/QueueList'
 import { useAssign } from './hooks/useAssign'
 import type { TableColor } from './lib/tableStatus'
+import { HistoryTable } from './components/HistoryTable'
 
 function App() {
   const [statusFilter, setStatusFilter] = useState<TableColor | null>(null)
@@ -72,7 +73,10 @@ function App() {
           <Status activeFilter={statusFilter} onFilterChange={setStatusFilter} />
 
           <div className="grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-6 items-start">
-            <TableGrid statusFilter={statusFilter} />
+            <div className="flex flex-col gap-6">
+              <TableGrid statusFilter={statusFilter} />
+              <HistoryTable />
+            </div>
             <div className="flex flex-col gap-6">
               <ArrivalForm />
               <QueueList />

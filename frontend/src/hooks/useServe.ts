@@ -8,6 +8,7 @@ export function useServe() {
     mutationFn: serve,
     onSuccess: (data) => {
       queryClient.setQueryData(['status'], data)
+      queryClient.invalidateQueries({ queryKey: ['history'] })
     },
   })
 }
